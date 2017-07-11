@@ -53,7 +53,7 @@ dvbpsi_cuei_dr_t * dvbpsi_DecodeCUEIDr(dvbpsi_descriptor_t * p_descriptor)
     if (dvbpsi_IsDescriptorDecoded(p_descriptor))
         return p_descriptor->p_decoded;
 
-    if (p_descriptor->i_length == 0x01)
+    if (p_descriptor->i_length != 0x01)
         return NULL;
 
     /* Allocate memory */
