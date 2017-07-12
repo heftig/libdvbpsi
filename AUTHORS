@@ -99,6 +99,11 @@ D: CUE Identifier Descriptor (0x8a)
 D: Splice Information Table
 D: Maintainer
 
+N: Steven Toth
+E: stoth@kernellabs.com
+D: Bugfixing
+D: Descriptor 0x8a
+
 N: Yonathan Yusim
 D: Descriptor 0xa1
 
