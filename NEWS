@@ -3,6 +3,7 @@ Changes between 1.3.1 and 1.3.2:
 
  * Fix bug in dvbpsi_decoder_psi_section_add() set i_last_section_number
  * Fix bug in descriptor 0x8a that prevented it from being parsed properly
+ * Fix bug in descriptor 0x56 generation with multiple teletext page entries
 
 Changes between 1.3.0 and 1.3.1:
 --------------------------------
