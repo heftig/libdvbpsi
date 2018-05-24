@@ -968,6 +968,8 @@ static uint32_t dvbpsi_sis_generate_splice_cmd_bandwidth_reservation(uint8_t *p_
 dvbpsi_psi_section_t *dvbpsi_sis_sections_generate(dvbpsi_t *p_dvbpsi, dvbpsi_sis_t* p_sis)
 {
     dvbpsi_psi_section_t * p_current = dvbpsi_NewPSISection(1024);
+    if (!p_current)
+        return NULL;
 
     p_current->i_table_id = 0xFC;
     p_current->b_syntax_indicator = false;
