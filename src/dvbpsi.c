@@ -91,6 +91,7 @@ void *dvbpsi_decoder_new(dvbpsi_callback_gather_t pf_gather,
     p_decoder->i_section_max_size = i_section_max_size;
     p_decoder->b_discontinuity = b_discontinuity;
     p_decoder->i_continuity_counter = DVBPSI_INVALID_CC;
+    p_decoder->prevpacket[0] = 0;
     p_decoder->p_current_section = NULL;
     p_decoder->b_current_valid = false;
 
@@ -286,11 +287,19 @@ bool dvbpsi_packet_push(dvbpsi_t *p_dvbpsi, uint8_t* p_data)
         if (i_expected_counter == ((p_decoder->i_continuity_counter + 1) & 0xf)
             && !p_decoder->b_discontinuity)
         {
-            dvbpsi_error(p_dvbpsi, "PSI decoder",
-                     "TS duplicate (received %d, expected %d) for PID %d",
-                     p_decoder->i_continuity_counter, i_expected_counter,
-                     ((uint16_t)(p_data[1] & 0x1f) << 8) | p_data[2]);
-            return false;
+            if(!memcmp(p_decoder->prevpacket, p_data, 188))
+            {
+                dvbpsi_debug(p_dvbpsi, "PSI decoder",
+                             "TS duplicate (received %d, expected %d) for PID %d",
+                             p_decoder->i_continuity_counter, i_expected_counter,
+                             ((uint16_t)(p_data[1] & 0x1f) << 8) | p_data[2]);
+                return false;
+            }
+            else /* Fake duplicate */
+            {
+                /* force discontinuity */
+                i_expected_counter = p_decoder->i_continuity_counter + 1;
+            }
         }
 
         if (i_expected_counter != p_decoder->i_continuity_counter)
@@ -307,6 +316,8 @@ bool dvbpsi_packet_push(dvbpsi_t *p_dvbpsi, uint8_t* p_data)
             }
         }
     }
+
+    memcpy(p_decoder->prevpacket, p_data, 188);
 
     /* Return if no payload in the TS packet */
     if (!(p_data[3] & 0x10))
