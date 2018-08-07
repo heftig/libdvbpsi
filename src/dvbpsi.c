@@ -120,6 +120,9 @@ void dvbpsi_decoder_reset(dvbpsi_decoder_t* p_decoder, const bool b_force)
     if (b_force)
         p_decoder->b_current_valid = false;
 
+    p_decoder->i_continuity_counter = DVBPSI_INVALID_CC;
+    p_decoder->prevpacket[0] = 0;
+
     /* Clear the section array */
     dvbpsi_DeletePSISections(p_decoder->p_sections);
     p_decoder->p_sections = NULL;
