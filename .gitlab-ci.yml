@@ -39,7 +39,7 @@ build-win64:
         - autoreconf -fisv
         - mkdir build
         - cd build
-        - ../configure --host=x86_64-w64-mingw32
+        - ../configure --host=x86_64-w64-mingw32 --disable-examples
         - make -j $(getconf _NPROCESSORS_ONLN)
 
 build-win32:
@@ -53,5 +53,5 @@ build-win32:
         - autoreconf -fisv
         - mkdir build
         - cd build
-        - ../configure --host=i686-w64-mingw32
+        - ../configure --host=i686-w64-mingw32 --disable-examples
         - make -j $(getconf _NPROCESSORS_ONLN)
