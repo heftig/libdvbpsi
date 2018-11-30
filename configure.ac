@@ -132,6 +132,16 @@ if test "${ac_cv_asprintf}" != "no"; then
     AC_DEFINE(HAVE_ASPRINTF, 1, [Support for asprintf() and vasprintf()])
 fi
 
+# dnl Whether or not build examples
+AC_ARG_ENABLE([examples],
+  [AS_HELP_STRING([--enable-examples],
+  [build examples (default is yes)])],
+  [build_examples=$enableval],
+  [build_examples=yes])
+
+dnl use examples
+AM_CONDITIONAL([BUILD_EXAMPLES], [ test $build_examples = "yes" ])
+
 dnl
 dnl Generate Makefiles and other output files
 dnl
@@ -153,4 +163,5 @@ debug                 : ${debug}
 release               : ${release}
 compile flags         : ${CFLAGS}
 build for             : ${SYS}
+build examples        : ${build_examples}
 "
