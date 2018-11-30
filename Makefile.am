@@ -2,7 +2,12 @@
 
 ACLOCAL_AMFLAGS=-I m4
 
-SUBDIRS = src examples misc
+SUBDIRS = src
+
+if BUILD_EXAMPLES
+SUBDIRS += examples misc
+endif
+
 DIST_SUBDIRS = $(SUBDIRS) doc
 
 EXTRA_DIST = libdvbpsi.spec libdvbpsi.spec.in libdvbpsi.pc.in bootstrap
@@ -14,9 +19,6 @@ doc-dummy:
 
 doc: doc-dummy
 	$(MAKE) -C doc doc
-
-test_dr.c:
-	$(MAKE) -C misc test_dr.c
 
 changelog:
 	cvs2cl --utc --hide-filenames --no-wrap -w --stdout -g -z9 | \
@@ -30,5 +32,10 @@ dist-checksum: $(DIST_ARCHIVES)
 	  sha256sum $$sum > $$sum.sha256; \
 	done
 
+if BUILD_EXAMPLES
+test_dr.c:
+	$(MAKE) -C misc test_dr.c
+
 generate-header_dr:
 	misc/gen_dr_h.sh > src/descriptors/dr.h
+endif
