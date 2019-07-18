@@ -215,8 +215,9 @@ bool dvbpsi_CheckPSISection(dvbpsi_t *p_dvbpsi, dvbpsi_psi_section_t *p_section,
     }
 
     dvbpsi_debug(p_dvbpsi, psz_table_name,
-                   "Table version %2d, " "i_extension %5d, "
+                   "Table %3d version %2d, " "i_extension %5d, "
                    "section %3d up to %3d, " "current %1d",
+                   p_section->i_table_id,
                    p_section->i_version, p_section->i_extension,
                    p_section->i_number, p_section->i_last_number,
                    p_section->b_current_next);
