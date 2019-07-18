@@ -404,7 +404,6 @@ static bool dvbpsi_AddSectionEIT(dvbpsi_t *p_dvbpsi, dvbpsi_eit_decoder_t *p_eit
 
         if (p_eit_decoder->p_building_eit == NULL)
             return false;
-        p_eit_decoder->i_last_section_number = p_section->i_last_number;
     }
 
     /* Add to linked list of sections */
