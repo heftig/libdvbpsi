@@ -206,7 +206,7 @@ bool dvbpsi_CheckPSISection(dvbpsi_t *p_dvbpsi, dvbpsi_psi_section_t *p_section,
     }
 
     if (!p_section->b_syntax_indicator &&
-        (table_id != 0x70 && table_id != 0x73)) /* TDT/TOT has b_syntax_indicator set to '0' */
+        (table_id != 0x70 && table_id != 0x73 && table_id != 0xFC)) /* TDT/TOT/SIS has b_syntax_indicator set to '0' */
     {
         /* Invalid section_syntax_indicator */
         dvbpsi_error(p_dvbpsi, psz_table_name,
