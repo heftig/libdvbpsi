@@ -285,6 +285,10 @@ bool dvbpsi_packet_push(dvbpsi_t *p_dvbpsi, const uint8_t* p_data)
         return false;
     }
 
+    /* Return if no payload in the TS packet */
+    if (!(p_data[3] & 0x10))
+        return false;
+
     /* Continuity check */
     const bool b_first = (p_decoder->i_continuity_counter == DVBPSI_INVALID_CC);
     if (b_first)
@@ -328,10 +332,6 @@ bool dvbpsi_packet_push(dvbpsi_t *p_dvbpsi, const uint8_t* p_data)
     }
 
     memcpy(p_decoder->prevpacket, p_data, 188);
-
-    /* Return if no payload in the TS packet */
-    if (!(p_data[3] & 0x10))
-        return false;
 
     /* Skip the adaptation_field if present */
     if (p_data[3] & 0x20)
