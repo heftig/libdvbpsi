@@ -383,20 +383,6 @@ void dvbpsi_sis_sections_gather(dvbpsi_t *p_dvbpsi, dvbpsi_psi_section_t * p_sec
             if (dvbpsi_CheckSIS(p_dvbpsi, p_sis_decoder, p_section))
                 dvbpsi_ReInitSIS(p_sis_decoder, true);
         }
-        else
-        {
-            if(     (p_sis_decoder->b_current_valid)
-                 && (p_sis_decoder->current_sis.i_version == p_section->i_version)
-                 && (p_sis_decoder->current_sis.b_current_next == p_section->b_current_next))
-             {
-                 /* Don't decode since this version is already decoded */
-                 dvbpsi_debug(p_dvbpsi, "SIT decoder",
-                             "ignoring already decoded section %d",
-                             p_section->i_number);
-                 dvbpsi_DeletePSISections(p_section);
-                 return;
-             }
-        }
     }
 
     /* Add section to SIS */
