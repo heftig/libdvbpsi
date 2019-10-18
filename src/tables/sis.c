@@ -701,7 +701,7 @@ void dvbpsi_sis_sections_decode(dvbpsi_t* p_dvbpsi, dvbpsi_sis_t* p_sis,
             p_sis->i_protocol_version = p_byte[3];
             p_sis->b_encrypted_packet = ((p_byte[4] & 0x80) == 0x80);
             /* NOTE: cannot handle encrypted packet */
-            assert(p_sis->b_encrypted_packet);
+            assert(!p_sis->b_encrypted_packet);
             if (p_sis->b_encrypted_packet) {
                 dvbpsi_error(p_dvbpsi, "SIS decoder", "cannot handle encrypted packets");
                 break;
