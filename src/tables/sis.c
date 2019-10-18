@@ -191,7 +191,24 @@ dvbpsi_sis_t* dvbpsi_sis_new(uint8_t i_table_id, uint16_t i_extension, uint8_t i
  *****************************************************************************/
 void dvbpsi_sis_empty(dvbpsi_sis_t* p_sis)
 {
-    /* FIXME: free splice_command_sections */
+    switch (p_sis->i_splice_command_type)
+    {
+        case 0x00: /* splice_null */
+        case 0x04: /* splice_schedule */
+            cmd_splice_schedule_cleanup(p_sis->p_splice_command);
+            break;
+        case 0x05: /* splice_insert */
+            cmd_splice_insert_cleanup(p_sis->p_splice_command);
+            break;
+        case 0x06: /* time_signal */
+            cmd_time_signal_cleanup(p_sis->p_splice_command);
+            break;
+        case 0x07: /* bandwidth_reservation */
+            break;
+        default:
+            break;
+    }
+    p_sis->p_splice_command = NULL;
 
     dvbpsi_DeleteDescriptors(p_sis->p_first_descriptor);
     p_sis->p_first_descriptor = NULL;
@@ -312,7 +329,7 @@ static bool dvbpsi_AddSectionSIS(dvbpsi_t *p_dvbpsi, dvbpsi_sis_decoder_t *p_sis
 
     /* Add to linked list of sections */
     if (dvbpsi_decoder_psi_section_add(DVBPSI_DECODER(p_sis_decoder), p_section))
-        dvbpsi_debug(p_dvbpsi, "SDT decoder", "overwrite section number %d",
+        dvbpsi_debug(p_dvbpsi, "SIS decoder", "overwrite section number %d",
                      p_section->i_number);
 
     return true;
@@ -402,7 +419,7 @@ void dvbpsi_sis_sections_gather(dvbpsi_t *p_dvbpsi, dvbpsi_psi_section_t * p_sec
         /* Decode the sections */
         dvbpsi_sis_sections_decode(p_dvbpsi, p_sis_decoder->p_building_sis,
                                    p_sis_decoder->p_sections);
-        /* signal the new SDT */
+        /* signal the new SIS */
         p_sis_decoder->pf_sis_callback(p_sis_decoder->p_priv,
                                        p_sis_decoder->p_building_sis);
         /* Delete sections and Reinitialize the structures */
@@ -457,6 +474,27 @@ static void dvbpsi_sis_break_duration(uint8_t *p_data, dvbpsi_sis_break_duration
               ((uint64_t)p_data[2] << 16) |
               ((uint64_t)p_data[3] << 8)  |
                (uint64_t)p_data[4]);
+}
+
+/*****************************************************************************
+ * cmd_splice_insert_cleanup
+ *****************************************************************************
+ * Free resource for splice_insert command structure.
+ *****************************************************************************/
+static void cmd_splice_insert_cleanup(dvbpsi_sis_cmd_splice_insert_t *p_cmd)
+{
+    if (p_cmd)
+    {
+        dvbpsi_sis_component_splice_time_t *p_splice_time = p_cmd->p_splice_time;
+        while (p_splice_time != NULL)
+        {
+            dvbpsi_sis_component_splice_time_t *p_next = p_splice_time->p_next;
+            free(p_splice_time);
+            p_splice_time = p_next;
+        }
+        p_cmd->p_splice_time = NULL;
+        free(p_cmd);
+    }
 }
 
 /*****************************************************************************
@@ -574,21 +612,27 @@ error:
  *****************************************************************************/
 static void cmd_splice_schedule_cleanup(dvbpsi_sis_cmd_splice_schedule_t *p_cmd)
 {
-    dvbpsi_sis_splice_event_t *p_event = p_cmd->p_splice_event;
-    while (p_event) {
-        dvbpsi_sis_splice_event_t *p_next = p_event->p_next;
-        if (p_event->p_component) {
-            dvbpsi_sis_component_t *p_time = p_event->p_component;
-            while (p_time) {
-                dvbpsi_sis_component_t *p_tmp = p_time->p_next;
-                free(p_time);
-                p_time = p_tmp;
+    if (p_cmd)
+    {
+        dvbpsi_sis_splice_event_t* p_event = p_cmd->p_splice_event;
+        while (p_event)
+        {
+            dvbpsi_sis_splice_event_t* p_next = p_event->p_next;
+            if (p_event->p_component)
+            {
+                dvbpsi_sis_component_t* p_time = p_event->p_component;
+                while (p_time)
+                {
+                    dvbpsi_sis_component_t* p_tmp = p_time->p_next;
+                    free(p_time);
+                    p_time = p_tmp;
+                }
             }
+            free(p_event);
+            p_event = p_next;
         }
-        free(p_event);
-        p_event = p_next;
+        free(p_cmd);
     }
-    free(p_cmd);
 }
 
 /*****************************************************************************
@@ -684,6 +728,76 @@ static dvbpsi_sis_cmd_splice_schedule_t *
 }
 
 /*****************************************************************************
+ * cmd_time_signal_cleanup
+ *****************************************************************************
+ * Free resource for time_signal command structure.
+ *****************************************************************************/
+static void cmd_time_signal_cleanup(dvbpsi_sis_cmd_time_signal_t *p_cmd)
+{
+    if (p_cmd)
+    {
+        dvbpsi_sis_splice_time_t *p_splice_time = p_cmd->p_splice_time;
+        while (p_splice_time != NULL)
+        {
+            dvbpsi_sis_splice_time_t *p_next = p_splice_time->p_next;
+            free(p_splice_time);
+            p_splice_time = p_next;
+        }
+        p_cmd->p_splice_time = NULL;
+        free(p_cmd);
+    }
+}
+
+/*****************************************************************************
+ * dvbpsi_sis_cmd_time_signal_decode
+ *****************************************************************************
+ * time_signal command decoder.
+ *****************************************************************************/
+static dvbpsi_sis_cmd_time_signal_t *
+    dvbpsi_sis_cmd_time_signal_decode(uint8_t *p_data, uint16_t i_length)
+{
+    dvbpsi_sis_cmd_time_signal_t *p_cmd = calloc(1, sizeof(dvbpsi_sis_cmd_time_signal_t));
+    if (!p_cmd) return NULL;
+    
+    if (i_length < 1)
+    {
+        cmd_time_signal_cleanup(p_cmd);
+        return NULL;
+    }
+
+    bool b_time_specified = false;
+    uint64_t i_pts_time;
+    if ((p_data[0] & 0x80) == 0x80)
+    {
+        if (i_length < 5)
+        {
+            cmd_time_signal_cleanup(p_cmd);
+            return NULL;
+        }
+
+        b_time_specified = true;
+        i_pts_time = ((((uint64_t)p_data[0] & 0x01) << 32) |
+                       ((uint64_t)p_data[1] << 24) |
+                       ((uint64_t)p_data[2] << 16) |
+                       ((uint64_t)p_data[3] << 8) |
+                        (uint64_t)p_data[4]);
+    }
+    
+    p_cmd->p_splice_time = calloc(1, sizeof(dvbpsi_sis_splice_time_t));
+    if (p_cmd->p_splice_time == NULL)
+    {
+        cmd_time_signal_cleanup(p_cmd);
+        return NULL;
+    }
+
+    p_cmd->p_splice_time->b_time_specified_flag = b_time_specified;
+    p_cmd->p_splice_time->i_pts_time = i_pts_time;
+    p_cmd->p_splice_time->p_next = NULL;
+
+    return p_cmd;
+}
+
+/*****************************************************************************
  * dvbpsi_sis_sections_decode
  *****************************************************************************
  * SIS decoder.
@@ -745,6 +859,13 @@ void dvbpsi_sis_sections_decode(dvbpsi_t* p_dvbpsi, dvbpsi_sis_t* p_sis,
                                     "splice insert command is invalid");
                     break;
                 case 0x06: /* time_signal */
+                    p_sis->p_splice_command =
+                            dvbpsi_sis_cmd_time_signal_decode(&p_byte[14],
+                            p_sis->i_splice_command_length);
+                    if (!p_sis->p_splice_command)
+                        dvbpsi_error(p_dvbpsi, "SIS decoder",
+                                     "time_signal command is invalid");
+                        break;
                 case 0x07: /* bandwidth_reservation */
                     break;
                 default:

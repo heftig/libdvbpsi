@@ -59,6 +59,27 @@ void dvbpsi_sis_sections_gather(dvbpsi_t* p_dvbpsi, dvbpsi_psi_section_t* p_sect
 void dvbpsi_sis_sections_decode(dvbpsi_t* p_dvbpsi, dvbpsi_sis_t* p_sis,
                                dvbpsi_psi_section_t* p_section);
 
+/*****************************************************************************
+ * cmd_splice_schedule_cleanup
+ *****************************************************************************
+ * Free resource for splice_schedule command structure.
+ *****************************************************************************/
+static void cmd_splice_schedule_cleanup(dvbpsi_sis_cmd_splice_schedule_t *p_cmd);
+
+/*****************************************************************************
+ * cmd_splice_insert_cleanup
+ *****************************************************************************
+ * Free resource for splice_insert command structure.
+ *****************************************************************************/
+static void cmd_splice_insert_cleanup(dvbpsi_sis_cmd_splice_insert_t *p_cmd);
+
+/*****************************************************************************
+ * cmd_time_signal_cleanup
+ *****************************************************************************
+ * Free resource for time_signal command structure.
+ *****************************************************************************/
+static void cmd_time_signal_cleanup(dvbpsi_sis_cmd_time_signal_t *p_cmd);
+
 #else
 #error "Multiple inclusions of sis_private.h"
 #endif

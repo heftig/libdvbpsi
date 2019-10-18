@@ -72,6 +72,8 @@ typedef struct dvbpsi_sis_s
   uint64_t                  i_pts_adjustment;       /*!< PTS offset */
   uint8_t                   cw_index;               /*!< CA control word */
 
+  uint16_t                  i_tier;                 /*!< authorization tiers */
+
   /* splice command */
   uint16_t                  i_splice_command_length;/*!< Length of splice command */
   uint8_t                   i_splice_command_type;  /*!< Splice command type */
