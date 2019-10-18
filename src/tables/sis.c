@@ -795,28 +795,29 @@ void dvbpsi_sis_sections_decode(dvbpsi_t* p_dvbpsi, dvbpsi_sis_t* p_sis,
 
     while (p_section)
     {
-        for (p_byte = p_section->p_payload_start + 3;
-             p_byte + 14 < p_section->p_payload_end; )
+        for (p_byte = p_section->p_payload_start;
+             p_byte + 17 <= p_section->p_payload_end; )
         {
-            p_sis->i_protocol_version = p_byte[3];
-            p_sis->b_encrypted_packet = ((p_byte[4] & 0x80) == 0x80);
+            p_sis->i_protocol_version = p_byte[0];
+            p_sis->b_encrypted_packet = ((p_byte[1] & 0x80) == 0x80);
             /* NOTE: cannot handle encrypted packet */
             assert(!p_sis->b_encrypted_packet);
             if (p_sis->b_encrypted_packet) {
                 dvbpsi_error(p_dvbpsi, "SIS decoder", "cannot handle encrypted packets");
                 break;
             }
-            p_sis->i_encryption_algorithm = ((p_byte[4] & 0x7E) >> 1);
-            p_sis->i_pts_adjustment = ((((uint64_t)p_byte[4] & 0x01) << 32) |
-                                        ((uint64_t)p_byte[5] << 24) |
-                                        ((uint64_t)p_byte[6] << 16) |
-                                        ((uint64_t)p_byte[7] << 8)  |
-                                         (uint64_t)p_byte[8]);
-            p_sis->cw_index = p_byte[9];
-            p_sis->i_splice_command_length = ((p_byte[11] & 0x0F) << 8) | p_byte[12];
-            p_sis->i_splice_command_type = p_byte[13];
+            p_sis->i_encryption_algorithm = ((p_byte[1] & 0x7E) >> 1);
+            p_sis->i_pts_adjustment = ((((uint64_t)p_byte[1] & 0x01) << 32) |
+                                        ((uint64_t)p_byte[2] << 24) |
+                                        ((uint64_t)p_byte[3] << 16) |
+                                        ((uint64_t)p_byte[4] << 8)  |
+                                         (uint64_t)p_byte[5]);
+            p_sis->cw_index = p_byte[6];
+            p_sis->i_tier = (p_byte[7] << 4) | (p_byte[8] >> 4);
+            p_sis->i_splice_command_length = ((p_byte[8] & 0x0F) << 8) | p_byte[9];
+            p_sis->i_splice_command_type = p_byte[10];
 
-            if ((p_byte + 14 + p_sis->i_splice_command_length) >= p_section->p_payload_end) {
+            if ((p_byte + 11 + p_sis->i_splice_command_length) >= p_section->p_payload_end) {
                 dvbpsi_error(p_dvbpsi, "SIS decoder", "corrupt section data");
                 break;
             }
@@ -830,7 +831,7 @@ void dvbpsi_sis_sections_decode(dvbpsi_t* p_dvbpsi, dvbpsi_sis_t* p_sis,
                     break;
                 case 0x04: /* splice_schedule */
                     p_sis->p_splice_command =
-                            dvbpsi_sis_cmd_splice_schedule_decode(&p_byte[14],
+                            dvbpsi_sis_cmd_splice_schedule_decode(&p_byte[11],
                                                 p_sis->i_splice_command_length);
                     if (!p_sis->p_splice_command)
                         dvbpsi_error(p_dvbpsi, "SIS decoder",
@@ -838,7 +839,7 @@ void dvbpsi_sis_sections_decode(dvbpsi_t* p_dvbpsi, dvbpsi_sis_t* p_sis,
                     break;
                 case 0x05: /* splice_insert */
                     p_sis->p_splice_command =
-                            dvbpsi_sis_cmd_splice_insert_decode(&p_byte[14],
+                            dvbpsi_sis_cmd_splice_insert_decode(&p_byte[11],
                             p_sis->i_splice_command_length);
                     if (!p_sis->p_splice_command)
                         dvbpsi_error(p_dvbpsi, "SIS decoder",
@@ -846,7 +847,7 @@ void dvbpsi_sis_sections_decode(dvbpsi_t* p_dvbpsi, dvbpsi_sis_t* p_sis,
                     break;
                 case 0x06: /* time_signal */
                     p_sis->p_splice_command =
-                            dvbpsi_sis_cmd_time_signal_decode(&p_byte[14],
+                            dvbpsi_sis_cmd_time_signal_decode(&p_byte[11],
                             p_sis->i_splice_command_length);
                     if (!p_sis->p_splice_command)
                         dvbpsi_error(p_dvbpsi, "SIS decoder",
@@ -860,13 +861,13 @@ void dvbpsi_sis_sections_decode(dvbpsi_t* p_dvbpsi, dvbpsi_sis_t* p_sis,
             }
 
             /* Service descriptors */
-            uint8_t *p_desc = p_byte + 14 + p_sis->i_splice_command_length;
+            uint8_t *p_desc = p_byte + 11 + p_sis->i_splice_command_length;
             /* check our boundaries */
             if (p_desc + 2 >= p_section->p_payload_end)
                 break;
             p_sis->i_descriptors_length = (p_desc[0] << 8) | p_desc[1];
 
-            p_desc += 1;
+            p_desc += 2;
             p_end = p_desc + p_sis->i_descriptors_length;
             if (p_end > p_section->p_payload_end) break;
 
