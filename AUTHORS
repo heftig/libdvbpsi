@@ -29,6 +29,10 @@ N: M. Benoit
 E: <mbenoit@anevia.com>
 D: Generate descriptors 0x83, 0xa1
 
+N: O. Braun
+E: <oliv.braun@gmail.com>
+D: SIS table improvements
+
 N: Roberto Corno
 E: corno.roberto@gmail.com
 D: Descriptors 0x40, 0x41, 0x49, 0x4a, 0x4b, 0x4f and 0x50
