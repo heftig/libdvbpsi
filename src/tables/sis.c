@@ -752,7 +752,7 @@ static dvbpsi_sis_cmd_time_signal_t *
     }
 
     bool b_time_specified = false;
-    uint64_t i_pts_time;
+    uint64_t i_pts_time = 0;
     if ((p_data[0] & 0x80) == 0x80)
     {
         if (i_length < 5)
