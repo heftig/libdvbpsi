@@ -88,8 +88,7 @@ dvbpsi_dvb_content_id_dr_t *dvbpsi_decode_dvb_content_id_dr(dvbpsi_descriptor_t 
             }
             byte += len;
             /* Properly terminate the string */
-            unsigned int last = (i < len) ? i : len - 1U;
-            entry->value.path[last] = 0;
+            entry->value.path[len] = 0;
         }
         else if (entry->i_location == CRID_LOCATION_CIT)
         {
