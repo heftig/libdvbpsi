@@ -81,7 +81,7 @@ typedef struct dvbpsi_crid_entry_s
     uint8_t i_location;     /*!< content location */
     union
     {
-        uint8_t  path[253]; /*!< content path */
+        uint8_t  path[254]; /*!< content path including null string terminator byte */
         uint16_t ref;       /*!< content reference */
     } value;                /*!< content specific value */
 } dvbpsi_crid_entry_t;
