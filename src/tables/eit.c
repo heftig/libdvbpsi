@@ -473,8 +473,6 @@ void dvbpsi_eit_sections_gather(dvbpsi_t *p_dvbpsi, dvbpsi_psi_section_t *p_sect
         }
     }
 
-    bool b_complete = dvbpsi_IsCompleteEIT(p_eit_decoder, p_section);
-
     /* Add section to EIT */
     if (!dvbpsi_AddSectionEIT(p_dvbpsi, p_eit_decoder, p_section))
     {
@@ -485,7 +483,7 @@ void dvbpsi_eit_sections_gather(dvbpsi_t *p_dvbpsi, dvbpsi_psi_section_t *p_sect
     }
 
     /* Check if we have all the sections */
-    if (b_complete)
+    if (dvbpsi_IsCompleteEIT(p_eit_decoder, p_section))
     {
         assert(p_eit_decoder->pf_eit_callback);
 
