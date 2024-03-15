@@ -15,20 +15,22 @@ check_cc_pid_LDFLAGS =
 
 decode_pat_SOURCES = decode_pat.c
 decode_pat_CPPFLAGS = -DDVBPSI_DIST
-decode_pat_LDFLAGS = -L../src -ldvbpsi
+decode_pat_LDADD = ../src/libdvbpsi.la
 
 decode_pmt_SOURCES = decode_pmt.c
 decode_pmt_CPPFLAGS = -DDVBPSI_DIST
-decode_pmt_LDFLAGS = -L../src -ldvbpsi -lm
+decode_pmt_LDADD = ../src/libdvbpsi.la
+decode_pmt_LDFLAGS = -lm
 
 get_pcr_pid_SOURCES = get_pcr_pid.c
 get_pcr_pid_CPPFLAGS = -DDVBPSI_DIST
-get_pcr_pid_LDFLAGS = -L../src -ldvbpsi -lm
+get_pcr_pid_LDADD = ../src/libdvbpsi.la
+get_pcr_pid_LFLAGS = -lm
 
 decode_sdt_SOURCES = decode_sdt.c
 decode_sdt_CPPFLAGS = -DDVBPSI_DIST
-decode_sdt_LDFLAGS = -L../src -ldvbpsi
+decode_sdt_LDADD = ../src/libdvbpsi.la
 
 decode_bat_SOURCES = decode_bat.c
 decode_bat_CPPFLAGS = -DDVBPSI_DIST
-decode_bat_LDFLAGS = -L../src -ldvbpsi
+decode_bat_LDADD = ../src/libdvbpsi.la
