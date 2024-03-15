@@ -7,19 +7,20 @@ gen_crc_SOURCES = gen_crc.c
 
 gen_pat_SOURCES = gen_pat.c
 gen_pat_CPPFLAGS = -DDVBPSI_DIST
-gen_pat_LDFLAGS = -L../src -ldvbpsi
+gen_pat_LDADD = ../src/libdvbpsi.la
 
 gen_pmt_SOURCES = gen_pmt.c
 gen_pmt_CPPFLAGS = -DDVBPSI_DIST
-gen_pmt_LDFLAGS = -L../src -ldvbpsi
+gen_pmt_LDADD = ../src/libdvbpsi.la
 
 test_chain_SOURCES = test_chain.c
 test_chain_CPPFLAGS = -DDVBPSI_DIST
-test_chain_LDFLAGS = -L../src -ldvbpsi -lm
+test_chain_LDADD = ../src/libdvbpsi.la
+test_chain_LDFLAGS = -lm
 
 test_dr_SOURCES = test_dr.c
 test_dr_CPPFLAGS = -DDVBPSI_DIST
-test_dr_LDFLAGS = -L../src -ldvbpsi
+test_dr_LDADD = ../src/libdvbpsi.la
 
 noinst_HEADERS = test_dr.h test_dr_cmp.h
 
